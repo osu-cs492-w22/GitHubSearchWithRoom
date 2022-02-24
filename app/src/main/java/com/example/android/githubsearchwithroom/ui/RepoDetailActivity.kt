@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.content.res.AppCompatResources
 import com.example.android.githubsearchwithroom.R
 import com.example.android.githubsearchwithroom.data.GitHubRepo
@@ -18,6 +19,8 @@ const val EXTRA_GITHUB_REPO = "com.example.android.githubsearchwithroom.GitHubRe
 class RepoDetailActivity : AppCompatActivity() {
     private var repo: GitHubRepo? = null
     private var isBookmarked = false
+
+    private val viewModel: BookmarkedReposViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,25 @@ class RepoDetailActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_repo_detail, menu)
+        val bookmarkItem = menu.findItem(R.id.action_bookmark)
+        viewModel.getBookmarkedRepoByName(repo!!.name).observe(this) { bookmarkedRepo ->
+            when (bookmarkedRepo) {
+                null -> {
+                    isBookmarked = false
+                    bookmarkItem.icon = AppCompatResources.getDrawable(
+                        this,
+                        R.drawable.ic_action_bookmark_off
+                    )
+                }
+                else -> {
+                    isBookmarked = true
+                    bookmarkItem.icon = AppCompatResources.getDrawable(
+                        this,
+                        R.drawable.ic_action_bookmark_on
+                    )
+                }
+            }
+        }
         return true
     }
 
@@ -64,16 +86,10 @@ class RepoDetailActivity : AppCompatActivity() {
             menuItem.isChecked = isBookmarked
             when (isBookmarked) {
                 true -> {
-                    menuItem.icon = AppCompatResources.getDrawable(
-                        this,
-                        R.drawable.ic_action_bookmark_on
-                    )
+                    viewModel.addBookmarkedRepo(repo!!)
                 }
                 false -> {
-                    menuItem.icon = AppCompatResources.getDrawable(
-                        this,
-                        R.drawable.ic_action_bookmark_off
-                    )
+                    viewModel.removeBookmarkedRepo(repo!!)
                 }
             }
         }
