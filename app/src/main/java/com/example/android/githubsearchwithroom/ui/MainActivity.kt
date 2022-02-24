@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
             if (!TextUtils.isEmpty(query)) {
                 val sort = sharedPrefs.getString(
                     getString(R.string.pref_sort_key),
-                    null
+                    getString(R.string.pref_sort_default)
                 )
                 val user = sharedPrefs.getString(
                     getString(R.string.pref_user_key),
